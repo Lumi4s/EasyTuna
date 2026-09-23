@@ -1,123 +1,120 @@
-# 🎸 EasyTuna — Музыкальный тюнер для Android
+# 🎸 EasyTuna — Musical Instrument Tuner for Android & Web
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20Web-blue?style=for-the-badge&logo=android" alt="Platform" />
   <img src="https://img.shields.io/badge/Engine-Web%20Audio%20%2B%20YIN-success?style=for-the-badge" alt="Audio Engine" />
+  <img src="https://img.shields.io/badge/Language-TypeScript%20%7C%20React-61dafb?style=for-the-badge&logo=react" alt="Tech" />
   <img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge" alt="License" />
 </p>
 
-**EasyTuna** — это мобильное приложение для точной и быстрой настройки 6-струнной гитары, бас-гитары и других инструментов. Интерфейс вдохновлен популярным приложением *GuitarTuna*, но выполнен в мягкой воздушной пастельной эстетике с возможностью мгновенного переключения тем оформления.
+**EasyTuna** is a modern, high-precision instrument tuner application for 6-string guitar, bass guitar, and ukulele. Inspired by the intuitive interface of *GuitarTuna*, it features a distinctive headstock layout, automatic note detection, and an airy soft pastel aesthetic with instant theme switching.
 
 ---
 
-## ✨ Основные возможности
+## ✨ Features
 
-### 🎯 1. Интеллектуальный тюнер в стиле GuitarTuna
-- **Интерактивная головка грифа**: векторная SVG-головка гитары с колками, стойками и струнами, натянутыми через костяной порожек.
-- **Алгоритм YIN (de Cheveigné & Kawahara)**: профессиональное математическое распознавание основного тона без сдвига частот (точность 0.00 Гц на тестах E2, A2, D3, G3, B3, E4 и басовом E1).
-- **Машина состояний фиксации ноты (Attack-Lock)**:
-  - При извлечении звука тюнер мгновенно определяет струну и «защелкивается» на ней.
-  - При затухании звука стрелка устойчиво держит позицию без нервных рывков от посторонних шумов в комнате.
-  - Переключение на другую ноту происходит только при отчётливом щипке другой струны либо после таймаута тишины (1.4 с).
-- **Плавный индикатор отклонения (Pitch Meter)**: от `-50` до `+50` центов с демпфированием стрелки, индикацией точной частоты (Гц) и мягким зелёным свечением + тактильным вибро-откликом при попадании в тон (±3 цента).
-- **Генератор эталонных тонов**: нажмите на любой колок, чтобы прослушать реалистичный щипок струны.
+### 🎯 1. GuitarTuna-Inspired Intelligent Tuner
+- **Interactive Headstock View**: Fully vectorized SVG guitar headstock with classic dual-arch contours, tuning posts, chrome shafts, and strings running smoothly through a bone nut down to the fretboard.
+- **True YIN Algorithm (de Cheveigné & Kawahara)**: High-precision DSP pitch detection in the time domain, eliminating tapering bias and octave hopping (verified with 0.00 Hz target frequency error on standard guitar and bass strings).
+- **Attack-Lock State Machine**:
+  - Automatically identifies and locks onto a plucked string upon strike onset ($\Delta\text{RMS}$).
+  - Holds the target note steady during decay without erratic needle swings from ambient room noise.
+  - Seamlessly switches to another string only upon a distinct new strike or after a 1.4-second silence timeout.
+- **Smooth Cents Deviation Meter**: Ranging from `-50` to `+50` cents with adaptive needle damping. Illuminates with a soft emerald glow, chime, and haptic feedback when in tune (within $\pm 3$ cents).
+- **Reference Tone Synthesizer**: Tap any tuning peg to hear a realistic acoustic pluck of that string.
 
-### 🎨 2. Воздушное пастельное оформление и темы
-- **Воздушная пастель (Airy Pastel, по умолчанию)**: светлые мягкие градиенты утреннего неба, лавандово-голубые оттенки, стекломорфизм (`backdrop-filter: blur(16px)`) и объёмные мягкие тени.
-- **Глубокая ночь (Midnight Dark)**: эстетичный тёмный режим с неоновым свечением струн.
-- **Мятный бриз (Mint Breeze)**: освежающая фисташково-эвкалиптовая гамма.
-- Смена тем реализована через CSS-переменные (`tokens.css`) и переключается мгновенно без перерисовки ядра.
+### 🎨 2. Airy Pastel Design System & Themes
+- **Airy Pastel (Default)**: Soft morning sky gradients (`#F3F7FD` to `#EFE8FA`), frosted glassmorphic cards (`backdrop-filter: blur(16px)`), lavender-blue accents, and gentle diffused shadows.
+- **Midnight Dark**: Sleek, high-contrast dark theme with glowing neon strings.
+- **Mint Breeze**: Fresh pastel sage and eucalyptus tones.
+- Instant theme switching powered by CSS Custom Properties (`tokens.css`) without re-rendering the app core.
 
-### 📚 3. Каталог инструментов и строев
-- **6-струнная гитара**: *Стандартный E*, *Drop D*, *На полтона ниже (Eb)*.
-- **Бас-гитара (4 струны)**: строй E1-A1-D2-G2 (поддержка сверхнизких частот от 41 Гц).
-- **Укулеле (Сопрано)**: строй G4-C4-E4-A4.
-- **Заглушки для будущих обновлений**: 7-струнная гитара, 12-струнная гитара, скрипка.
-- **Удобное управление на ПК**: категории инструментов сверху можно прокручивать колёсиком мыши (с автоматической блокировкой вертикального скролла страницы) или свайпать зажатой кнопкой мыши.
-
----
-
-## 🛠 Технологический стек
-
-- **Фреймворк**: React 19, TypeScript, Vite
-- **Стилизация**: Чистый Vanilla CSS + семантические Design Tokens (CSS Variables)
-- **Аудио-движок**: Web Audio API (`AudioContext`, `AnalyserNode`) + собственный DSP-модуль алгоритма YIN
-- **Мобильная платформа**: Capacitor 8 (Android)
-- **Иконки**: Lucide React
+### 📚 3. Extensible Instruments Catalog
+- **6-String Guitar**: *Standard E*, *Drop D*, *Half-step down (Eb)*.
+- **4-String Bass Guitar**: Low-register support down to $E_1$ (41.20 Hz).
+- **Ukulele (Soprano/Concert)**: $G_4$ - $C_4$ - $E_4$ - $A_4$.
+- **Upcoming Presets**: 7-string guitar, 12-string guitar, violin (stubs ready in configuration).
+- **Desktop Friendly Navigation**: Category tabs feature mouse-wheel scrolling (with page vertical scroll lock), drag-to-scroll swiping, and quick-navigation arrow buttons.
 
 ---
 
-## 🚀 Быстрый старт
+## 🛠 Technology Stack
 
-### Требования
+- **Frontend Core**: React 19, TypeScript, Vite
+- **Styling**: Vanilla CSS with semantic Design Tokens & CSS Variables
+- **Audio Engine**: Web Audio API (`AudioContext`, `AnalyserNode`) + custom YIN pitch detection module
+- **Mobile Container**: Capacitor 8 (Android platform wrapper with hardware permissions for audio recording and haptics)
+- **Icons**: Lucide React
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
 - Node.js 18+
 - npm / yarn
 
-### Запуск веб-версии
+### Local Web Development
 ```bash
-# Клонировать репозиторий
-git clone https://github.com/username/EasyTuna.git
+# Clone the repository
+git clone https://github.com/<your-username>/EasyTuna.git
 cd EasyTuna
 
-# Установить зависимости
+# Install dependencies
 npm install
 
-# Запустить сервер разработки
+# Start local dev server
 npm run dev
 ```
-Откройте в браузере: `http://localhost:3000/`
+Open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 ---
 
-## 📱 Скачивание и сборка Android APK
+## 📱 Download & Android Build
 
-Готовый скомпилированный установочный файл доступен во вкладке **Releases** на GitHub:
-👉 **[Скачать EasyTuna-v1.0.apk в GitHub Releases](../../releases)**
+### Download Pre-built APK
+The compiled and signed debug APK is available directly in GitHub Releases:  
+👉 **[Download EasyTuna-v1.0.apk](../../releases)**
 
-### Самостоятельная сборка из исходников:
+### Build APK from Source
 ```bash
-# 1. Собрать веб-бандл и синхронизировать с Android
+# 1. Build web distribution bundle and sync with native Android
 npm run build
 npx cap sync
 
-# 2. Собрать APK через Gradle
+# 2. Compile APK using Gradle wrapper
 cd android
 ./gradlew assembleDebug
 ```
-Собранный файл появится по пути:
+The output APK will be generated at:  
 `android/app/build/outputs/apk/debug/app-debug.apk`
 
 ---
 
-## 📂 Структура проекта
+## 📂 Project Structure
 
 ```
 EasyTuna/
-├── android/                 # Нативный Android-проект (Capacitor + Gradle)
+├── android/                 # Native Android Capacitor wrapper & Gradle setup
 ├── src/
-│   ├── audio/              # Высокоточный аудио-движок
-│   │   ├── PitchDetector.ts # Алгоритм YIN с суб-сэмпловой параболической интерполяцией
-│   │   ├── AudioEngine.ts   # Машина состояний (Attack-Lock), фильтр медианы, микрофон
-│   │   ├── PitchUtils.ts    # Расчет центов, музыкальных нот и октав
-│   │   └── ToneGenerator.ts # Синтезатор эталонного звука щипка струны
-│   ├── config/             # Декларативное описание инструментов и строев
+│   ├── audio/              # Pitch detection & sound synthesis engine
+│   │   ├── PitchDetector.ts # YIN algorithm with sub-sample parabolic interpolation
+│   │   ├── AudioEngine.ts   # Attack-Lock state machine, median filter, mic stream
+│   │   ├── PitchUtils.ts    # Cents, musical notes, and frequency math
+│   │   └── ToneGenerator.ts # Plucked string audio synthesizer
+│   ├── config/             # Declarative instrument & tuning definitions
 │   │   └── instruments.ts
-│   ├── context/            # Контексты тюнера и динамических тем
-│   │   ├── TunerContext.tsx
-│   │   └── ThemeContext.tsx
-│   ├── components/         # Компоненты интерфейса
-│   │   ├── tuner/          # Векторная головка грифа (HeadstockView) и шкала центов (PitchMeter)
-│   │   ├── common/         # Header и BottomNav
-│   │   └── ...
-│   ├── views/              # Экраны: TunerView, InstrumentsView, SettingsView
-│   ├── styles/             # CSS токены оформления (Airy Pastel, Midnight, Mint)
+│   ├── context/            # Global state (TunerContext & ThemeContext)
+│   ├── components/         # Modular UI components (HeadstockView, PitchMeter, etc.)
+│   ├── views/              # Pages: TunerView, InstrumentsView, SettingsView
+│   ├── styles/             # CSS design tokens (tokens.css, App.css)
 │   └── App.tsx
-├── EasyTuna-v1.0.apk       # Готовый APK для установки на Android
-└── README.md
+├── README.md
+└── RELEASE_NOTES.md
 ```
 
 ---
 
-## 💡 Разработка и стандарты
-
-Проект спроектирован и реализован при помощи модели искусственного интеллекта **Gemini 3.8 Flash (High)** по стандартам современной компонентной веб- и мобильной разработки с оптимизацией цифровой обработки сигналов (DSP) под мобильные устройства.
+<p align="center">
+  <sub><font color="#8b949e">Designed and implemented with the assistance of Gemini 3.8 Flash (High) in accordance with modern engineering standards.</font></sub>
+</p>

@@ -1,16 +1,17 @@
-# Релиз EasyTuna v1.0.0
+# EasyTuna v1.0.0 Release
 
-Первый стабильный выпуск мобильного приложения **EasyTuna** для настройки 6-струнной гитары, бас-гитары и укулеле!
+First stable release of **EasyTuna** — an intelligent instrument tuner for 6-string guitar, bass guitar, and ukulele!
 
-### 📦 Что включено:
-- **Установочный APK файл**: [`EasyTuna-v1.0.apk`](./EasyTuna-v1.0.apk) (готов к установке на Android 7.0+).
-- **Интерфейс в духе GuitarTuna**: интерактивная векторная головка грифа гитары, струны и колки, подсвечивающиеся при извлечении звука.
-- **Алгоритм YIN (DSP)**: точность детекции частот до 0.00 Гц на гитарных и басовых струнах.
-- **Машина состояний Attack-Lock**: фиксация взятой ноты во время затухания струны без бросков маятника и паразитных переключений от шума комнаты.
-- **Воздушная пастельная тема (Airy Pastel)** + переключение на темную тему *Midnight Dark* и свежую *Mint Breeze*.
-- **Каталог инструментов**: 6-струнная гитара (Standard, Drop D, Eb), 4-струнный бас, укулеле и заготовки для будущих инструментов.
-- **Поддержка ПК**: скролл категорий колесиком мыши (с блокировкой вертикальной прокрутки) и свайпы перетаскиванием.
+### 📦 Highlights
+- **Pre-built APK**: `EasyTuna-v1.0.apk` ready for installation on Android 7.0+.
+- **GuitarTuna-Inspired Interface**: Interactive vector guitar headstock with real-time string detection and in-tune glowing animations.
+- **True YIN Pitch Detection (DSP)**: Laboratory-tested 0.00 Hz frequency error across standard guitar strings and low-register bass E1 (41.20 Hz).
+- **Attack-Lock State Machine**: Locks onto struck strings instantly and prevents needle jitter or false octave jumps during sustain and decay.
+- **Airy Pastel Aesthetics**: Default dreamy pastel skymorphic theme, with one-click switching to *Midnight Dark* or *Mint Breeze*.
+- **Desktop Enhanced**: Mouse-wheel category scrolling with page vertical scroll lock and mouse drag-to-scroll.
 
 ---
 
-> 💡 **Примечание**: Проект разработан при помощи модели искусственного интеллекта **Gemini 3.8 Flash (High)** по стандартам современной разработки в Google Antigravity.
+<p align="center">
+  <sub><font color="#8b949e">Designed and developed with the assistance of Gemini 3.8 Flash (High) following modern engineering standards.</font></sub>
+</p>
