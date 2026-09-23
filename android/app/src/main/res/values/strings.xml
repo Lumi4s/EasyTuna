@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EasyTuna</string>
+    <string name="title_activity_main">EasyTuna</string>
+    <string name="package_name">com.easytuna.app</string>
+    <string name="custom_url_scheme">com.easytuna.app</string>
+</resources>
