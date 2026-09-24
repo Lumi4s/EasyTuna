@@ -57,7 +57,7 @@
 ### Local Web Development
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/EasyTuna.git
+git clone https://github.com/Lumi4s/EasyTuna.git
 cd EasyTuna
 
 # Install dependencies
