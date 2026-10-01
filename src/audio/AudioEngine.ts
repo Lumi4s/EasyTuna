@@ -17,6 +17,8 @@ export class AudioEngine {
   private audioCtx: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
   private mediaStream: MediaStream | null = null;
+  private highpassFilter: BiquadFilterNode | null = null;
+  private lowpassFilter: BiquadFilterNode | null = null;
   private detector: PitchDetector;
   private isRunning = false;
   private animFrameId: number | null = null;
@@ -26,6 +28,14 @@ export class AudioEngine {
   private smoothedCents = 0;
   private recentFreqs: number[] = [];
   private readonly medianWindowSize = 5;
+
+  // Loop cadence & performance throttling (~30-33 Hz analysis, zero-waste UI)
+  private lastDetectTime = 0;
+  private readonly detectIntervalMs = 32;
+  private lastResultTimestamp = 0;
+
+  // Dynamic Noise Floor tracking
+  private noiseFloor = 0.003;
 
   // Note Attack-Lock State Machine
   private activeLock: ActiveNoteLock | null = null;
@@ -99,9 +109,27 @@ export class AudioEngine {
       });
 
       const source = this.audioCtx.createMediaStreamSource(this.mediaStream);
+
+      // Hardware Biquad Filters:
+      // 1. High-pass filter (32 Hz) cuts off rumble, handling thumps, and DC bias below musical range
+      this.highpassFilter = this.audioCtx.createBiquadFilter();
+      this.highpassFilter.type = 'highpass';
+      this.highpassFilter.frequency.setValueAtTime(32, this.audioCtx.currentTime);
+      this.highpassFilter.Q.setValueAtTime(0.707, this.audioCtx.currentTime);
+
+      // 2. Low-pass filter (1350 Hz) cuts off fret buzz, mic hiss, and ultrasonic harmonics
+      this.lowpassFilter = this.audioCtx.createBiquadFilter();
+      this.lowpassFilter.type = 'lowpass';
+      this.lowpassFilter.frequency.setValueAtTime(1350, this.audioCtx.currentTime);
+      this.lowpassFilter.Q.setValueAtTime(0.707, this.audioCtx.currentTime);
+
       this.analyser = this.audioCtx.createAnalyser();
       this.analyser.fftSize = 4096;
-      source.connect(this.analyser);
+
+      // Connect DSP chain: Source -> Highpass -> Lowpass -> Analyser
+      source.connect(this.highpassFilter);
+      this.highpassFilter.connect(this.lowpassFilter);
+      this.lowpassFilter.connect(this.analyser);
 
       this.isRunning = true;
       const buffer = new Float32Array(this.analyser.fftSize);
@@ -109,13 +137,27 @@ export class AudioEngine {
       const loop = () => {
         if (!this.isRunning || !this.analyser || !this.audioCtx) return;
 
-        this.analyser.getFloatTimeDomainData(buffer);
         const now = performance.now();
+
+        // Throttle pitch detection to ~30-33 Hz (every ~32ms)
+        // Eliminates CPU waste while staying well within human auditory perception window
+        if (now - this.lastDetectTime < this.detectIntervalMs) {
+          this.animFrameId = requestAnimationFrame(loop);
+          return;
+        }
+        this.lastDetectTime = now;
+
+        this.analyser.getFloatTimeDomainData(buffer);
         const a4Scale = this.a4Calibration / 440;
 
-        // Dynamic threshold: when already locked on a sustaining note, allow following it into decay
+        // Dynamic threshold with Noise Floor tracking:
         const isCurrentlyLocked = this.activeLock !== null;
-        const currentSensitivity = isCurrentlyLocked ? this.sensitivity * 0.5 : this.sensitivity;
+        if (!isCurrentlyLocked || this.lastRms < this.sensitivity * 1.5) {
+          this.noiseFloor = this.noiseFloor * 0.95 + this.lastRms * 0.05;
+        }
+
+        const baseSensitivity = Math.max(this.sensitivity, this.noiseFloor * 1.8);
+        const currentSensitivity = isCurrentlyLocked ? baseSensitivity * 0.45 : baseSensitivity;
 
         const { frequency, clarity, rms } = this.detector.detect(
           buffer,
@@ -157,8 +199,9 @@ export class AudioEngine {
               rms,
             };
             this.lastPitchResult = result;
+            this.lastResultTimestamp = now;
             onPitch(result);
-          } else if (this.lastPitchResult && now - this.lastPitchResult.targetFrequency < 300) {
+          } else if (this.lastPitchResult && now - this.lastResultTimestamp < 300) {
             onPitch(this.lastPitchResult);
           } else {
             onPitch(null);
@@ -186,7 +229,7 @@ export class AudioEngine {
             // Check if we already have a locked note
             if (!this.activeLock) {
               // NO LOCK YET: A clear strike locks on immediately!
-              if (rms >= this.sensitivity) {
+              if (rms >= baseSensitivity) {
                 this.activeLock = {
                   string: candidateStr,
                   targetFreq: candidateTargetFreq,
@@ -286,6 +329,7 @@ export class AudioEngine {
               rms,
             };
             this.lastPitchResult = result;
+            this.lastResultTimestamp = now;
             onPitch(result);
           } else {
             // Lock expired (user stopped playing for 1.4s)
@@ -328,6 +372,14 @@ export class AudioEngine {
       this.mediaStream.getTracks().forEach((track) => track.stop());
       this.mediaStream = null;
     }
+    if (this.highpassFilter) {
+      this.highpassFilter.disconnect();
+      this.highpassFilter = null;
+    }
+    if (this.lowpassFilter) {
+      this.lowpassFilter.disconnect();
+      this.lowpassFilter = null;
+    }
     if (this.audioCtx) {
       this.audioCtx.close().catch(() => {});
       this.audioCtx = null;
@@ -339,6 +391,8 @@ export class AudioEngine {
     this.activeLock = null;
     this.pendingNewString = null;
     this.lastPitchResult = null;
+    this.lastResultTimestamp = 0;
+    this.lastDetectTime = 0;
   }
 
   public getIsRunning(): boolean {
